@@ -1,0 +1,35 @@
+{
+  "name": "roonjha-print-share",
+  "version": "1.0.0",
+  "description": "Offline QR-Based Document Sharing PWA for Printing Shops - Software by Roonjha Developers : 0315291486",
+  "private": true,
+  "scripts": {
+    "dev": "node --experimental-sqlite node_modules/next/dist/bin/next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "start": "node --experimental-sqlite node_modules/next/dist/bin/next start -H 0.0.0.0 -p 3000",
+    "test": "node --experimental-sqlite --test tests/*.test.mjs",
+    "check-net": "node scripts/check-network.js",
+    "clean-jobs": "node scripts/cleanup.js"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.453.0",
+    "next": "14.2.18",
+    "qrcode.react": "^4.2.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}
