@@ -6,3 +6,5 @@ uploads/
 data/
 *.log
 .env*.local
+
+.vercel
