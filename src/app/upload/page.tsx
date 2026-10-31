@@ -18,6 +18,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { PrintJob } from '@/lib/types';
+import { PwaInstallButton } from '@/components/pwa-install-button';
 
 interface QueuedFile {
   id: string;
@@ -366,6 +367,9 @@ export default function CustomerUploadPage() {
                 اپنے موبائل سے پی ڈی ایف یا تصویر منتخب کر کے دکاندار کو بھیجیں
               </p>
             </div>
+
+            {/* PWA Mobile Installation Prompt */}
+            <PwaInstallButton variant="banner" />
 
             {/* Drag & Drop File Picker Zone */}
             <div

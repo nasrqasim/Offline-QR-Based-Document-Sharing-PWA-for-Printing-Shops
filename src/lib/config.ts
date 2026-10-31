@@ -1,5 +1,7 @@
 import { ShopSettings } from './types';
 
+const isVercel = Boolean(process.env.VERCEL);
+
 export const DEFAULT_SETTINGS: ShopSettings = {
   shopName: process.env.SHOP_NAME || 'Roonjha Print & Photostat Center',
   shopContact: process.env.SHOP_CONTACT || '0315291486',
@@ -32,5 +34,6 @@ export const DEFAULT_SETTINGS: ShopSettings = {
 
 export const SERVER_PORT = Number(process.env.PORT) || 3000;
 export const SERVER_HOST = process.env.HOST || '0.0.0.0';
-export const STORAGE_DIR = process.env.STORAGE_DIR || './uploads';
-export const DB_PATH = process.env.DB_PATH || './data/roonjha_print.db';
+export const STORAGE_DIR = process.env.STORAGE_DIR || (isVercel ? '/tmp/uploads' : './uploads');
+export const DB_PATH = process.env.DB_PATH || (isVercel ? '/tmp/roonjha_print.db' : './data/roonjha_print.db');
+export const IS_VERCEL = isVercel;

@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Printer, Smartphone, ShieldCheck, Wifi, ArrowRight } from 'lucide-react';
+import { Printer, Smartphone, ShieldCheck, Wifi, ArrowRight, Sparkles } from 'lucide-react';
+import { PwaInstallButton } from '@/components/pwa-install-button';
 
 export default function HomePage() {
   const router = useRouter();
@@ -32,9 +33,12 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 text-xs text-slate-400 bg-navy-800/80 px-3 py-1.5 rounded-full border border-navy-700">
-          <Wifi className="h-3.5 w-3.5 text-green-400" />
-          <span>Local Network Mode</span>
+        <div className="flex items-center space-x-2">
+          <PwaInstallButton variant="pill" />
+          <div className="flex items-center space-x-2 text-xs text-slate-400 bg-navy-800/80 px-3 py-1.5 rounded-full border border-navy-700">
+            <Wifi className="h-3.5 w-3.5 text-green-400" />
+            <span>Local & Cloud</span>
+          </div>
         </div>
       </header>
 

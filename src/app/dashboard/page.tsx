@@ -1,32 +1,27 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Printer,
   QrCode,
   Wifi,
-  HardDrive,
-  RefreshCw,
   Search,
-  Filter,
   Sliders,
-  Activity,
-  Layers,
-  CheckCircle2,
-  AlertCircle,
-  FileText,
   Volume2,
   VolumeX,
-  ExternalLink,
-  Trash,
+  RefreshCw,
+  Sparkles,
+  FileText,
 } from 'lucide-react';
 import { JobFile, JobStatus, NetworkStatus, PrintJob, ShopSettings } from '@/lib/types';
 import { JobCard } from '@/components/job-card';
 import { FilePreviewModal } from '@/components/file-preview-modal';
 import { PrintDialogModal } from '@/components/print-dialog-modal';
 import { CounterQrPoster } from '@/components/counter-qr-poster';
+import { ShopWallQrPoster } from '@/components/shop-wall-qr-poster';
 import { NetworkDiagnostics } from '@/components/network-diagnostics';
 import { SettingsModal } from '@/components/settings-modal';
+import { PwaInstallButton } from '@/components/pwa-install-button';
 
 export default function DashboardPage() {
   const [jobs, setJobs] = useState<PrintJob[]>([]);
@@ -54,6 +49,7 @@ export default function DashboardPage() {
 
   // Modals state
   const [showQrPoster, setShowQrPoster] = useState(false);
+  const [showWallPoster, setShowWallPoster] = useState(false);
   const [showNetworkDiagnostics, setShowNetworkDiagnostics] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -147,7 +143,7 @@ export default function DashboardPage() {
     try {
       eventSource = new EventSource('/api/events');
 
-      eventSource.addEventListener('job_created', (e) => {
+      eventSource.addEventListener('job_created', () => {
         playNotificationSound();
         fetchJobs();
       });
@@ -161,7 +157,6 @@ export default function DashboardPage() {
       });
 
       eventSource.onerror = () => {
-        // SSE disconnected, activate 5-second polling fallback
         if (!fallbackInterval) {
           fallbackInterval = setInterval(fetchJobs, 5000);
         }
@@ -272,21 +267,34 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="text-[11px] text-blue-300">
-                Listening: <span className="font-mono text-white">{networkStatus?.selectedInterface?.address || '127.0.0.1'}:3000</span>
+                Listening: <span className="font-mono text-white">{networkStatus?.selectedInterface?.address || '127.0.0.1'}</span>
               </p>
             </div>
           </div>
 
           {/* Action Hub */}
           <div className="flex items-center space-x-2">
-            {/* Show Counter QR Poster Button */}
+            {/* Dedicated Wall QR Poster Button (For shop walls & acrylic stands) */}
+            <button
+              onClick={() => setShowWallPoster(true)}
+              className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-3.5 py-2 text-xs font-black text-white hover:from-amber-400 hover:to-orange-500 shadow-sm transition-all"
+              title="Print high-resolution A4/A3 QR poster to stick on shop wall"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>Print Wall QR Poster</span>
+            </button>
+
+            {/* Counter QR Stand */}
             <button
               onClick={() => setShowQrPoster(true)}
-              className="flex items-center space-x-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-blue-500 shadow-sm transition-colors"
+              className="hidden sm:flex items-center space-x-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 shadow-sm transition-colors"
             >
               <QrCode className="h-4 w-4" />
-              <span>Counter QR Poster</span>
+              <span>Counter QR</span>
             </button>
+
+            {/* PWA Install on PC Button */}
+            <PwaInstallButton variant="pill" label="Install on PC" />
 
             {/* Network Diagnostics */}
             <button
@@ -344,7 +352,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">PC Storage</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Storage Status</span>
             <p className="mt-1 text-2xl font-black text-emerald-600">
               {disk.freeMb > 1024 ? `${(disk.freeMb / 1024).toFixed(1)} GB` : `${disk.freeMb} MB`} free
             </p>
@@ -414,37 +422,57 @@ export default function DashboardPage() {
               </div>
               <h3 className="font-bold text-base text-navy-950">No incoming documents yet</h3>
               <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-                Customers can connect their phones to your shop Wi-Fi / Hotspot and scan the counter QR code to send documents here instantly.
+                Customers can connect their phones to your shop Wi-Fi / Hotspot and scan your Wall or Counter QR poster to send documents here instantly.
               </p>
-              <button
-                onClick={() => setShowQrPoster(true)}
-                className="mt-5 inline-flex items-center space-x-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-500 shadow-sm transition-colors"
-              >
-                <QrCode className="h-4 w-4" />
-                <span>Show Counter QR Code</span>
-              </button>
+              <div className="mt-5 flex items-center justify-center space-x-3">
+                <button
+                  onClick={() => setShowWallPoster(true)}
+                  className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-xs font-bold text-white hover:from-amber-400 hover:to-orange-500 shadow-sm transition-all"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>Print Shop Wall QR Poster</span>
+                </button>
+                <button
+                  onClick={() => setShowQrPoster(true)}
+                  className="inline-flex items-center space-x-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-500 shadow-sm transition-colors"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span>Counter QR Stand</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
       </main>
 
       {/* Footer Attribution */}
-      <footer className="border-t border-slate-200 bg-white py-4 mt-8">
+      <footer className="border-t border-slate-200 bg-white py-4 mt-8 print:hidden">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
           <p>
             Roonjha Print Share • <strong className="text-navy-950">software by Roonjha Developers : {settings?.shopContact || '0315291486'}</strong>
           </p>
           <div className="flex items-center space-x-3 text-slate-400">
-            <span>Local SQLite Database</span>
+            <span>Offline & Vercel Ready</span>
+            <span>•</span>
+            <span>PWA Enabled</span>
             <span>•</span>
             <span>Zero Cloud Dependency</span>
-            <span>•</span>
-            <span>Fast Offline PWA</span>
           </div>
         </div>
       </footer>
 
-      {/* Counter QR Poster Modal */}
+      {/* Wall QR Poster Modal (High-Resolution Wall Hanging / A4 Sheet) */}
+      {showWallPoster && (
+        <ShopWallQrPoster
+          uploadUrl={uploadUrl}
+          selectedInterface={networkStatus?.selectedInterface || null}
+          shopName={settings?.shopName || 'Roonjha Print & Photostat Center'}
+          shopContact={settings?.shopContact || '0315291486'}
+          onClose={() => setShowWallPoster(false)}
+        />
+      )}
+
+      {/* Counter QR Stand Modal */}
       {showQrPoster && (
         <CounterQrPoster
           uploadUrl={uploadUrl}

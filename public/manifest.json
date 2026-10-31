@@ -1,12 +1,13 @@
 {
-  "name": "Roonjha Print Share - Local Counter PWA",
+  "name": "Roonjha Print Share - Offline Printing PWA",
   "short_name": "RoonjhaPrint",
-  "description": "Send documents to the shop printer without internet connection. Software by Roonjha Developers : 0315291486",
-  "start_url": "/upload",
+  "description": "Send documents directly to the shop printer without internet. Software by Roonjha Developers : 0315291486",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0b1d30",
   "theme_color": "#1e40af",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -19,6 +20,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Customer Upload",
+      "short_name": "Upload",
+      "description": "Send documents from phone",
+      "url": "/upload",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Owner Dashboard",
+      "short_name": "Dashboard",
+      "description": "Manage & print incoming jobs",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "categories": ["utilities", "productivity", "business"]

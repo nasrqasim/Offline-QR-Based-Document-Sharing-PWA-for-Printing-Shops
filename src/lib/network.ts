@@ -2,16 +2,35 @@ import os from 'os';
 import { NetworkInterfaceInfo, NetworkStatus } from './types';
 import { SERVER_PORT } from './config';
 
-export function getNetworkInterfacesList(preferredInterfaceName?: string): NetworkInterfaceInfo[] {
+export function getNetworkInterfacesList(
+  preferredInterfaceName?: string,
+  publicHost?: string,
+  protocol: string = 'http'
+): NetworkInterfaceInfo[] {
   const nets = os.networkInterfaces();
   const result: NetworkInterfaceInfo[] = [];
+
+  // Check if deployed to Vercel or accessed via public domain/DNS
+  if (publicHost && !publicHost.includes('localhost') && !publicHost.startsWith('127.0.0.1')) {
+    result.push({
+      name: 'Public Web / Vercel',
+      displayName: `Public Cloud URL (${publicHost})`,
+      address: publicHost,
+      netmask: '255.255.255.255',
+      family: 'IPv4',
+      mac: 'cloud',
+      internal: false,
+      type: 'wifi',
+      isRecommended: true,
+      uploadUrl: `${protocol}://${publicHost}/upload`,
+    });
+  }
 
   for (const name of Object.keys(nets)) {
     const netList = nets[name];
     if (!netList) continue;
 
     for (const net of netList) {
-      // Filter for IPv4 and non-internal (unless only internal is available)
       if (net.family === 'IPv4') {
         const lowerName = name.toLowerCase();
         let type: NetworkInterfaceInfo['type'] = 'other';
@@ -24,12 +43,10 @@ export function getNetworkInterfacesList(preferredInterfaceName?: string): Netwo
           type = 'virtual';
         }
 
-        // Special check for Windows Mobile Hotspot / Wi-Fi Direct
         if (lowerName.includes('wi-fi direct') || lowerName.includes('hotspot') || net.address.startsWith('192.168.137.')) {
           type = 'hotspot';
         }
 
-        // Exclude Windows APIPA automatic self-assigned IPs (169.254.x.x) from being recommended
         const isApipa = net.address.startsWith('169.254.');
         const isLoopback = net.internal || net.address === '127.0.0.1';
 
@@ -52,15 +69,13 @@ export function getNetworkInterfacesList(preferredInterfaceName?: string): Netwo
     }
   }
 
-  // Determine which is recommended
-  // Priority:
-  // 1. Preferred interface chosen by owner in settings
-  // 2. Windows Mobile Hotspot (192.168.137.x)
-  // 3. Active Wi-Fi interface (not 169.254.x.x, not 127.0.0.1)
-  // 4. Active Ethernet interface (not 169.254.x.x)
-  // 5. Any active private IPv4 address (192.168.x, 10.x, 172.x)
-  // 6. 127.0.0.1 fallback
+  // Determine recommended interface
   let recommended = result.find(i => preferredInterfaceName && i.name === preferredInterfaceName && !i.address.startsWith('169.254.'));
+
+  // If on Vercel/public domain, default to cloud URL
+  if (!recommended && publicHost && !publicHost.includes('localhost') && !publicHost.startsWith('127.0.0.1')) {
+    recommended = result.find(i => i.name === 'Public Web / Vercel');
+  }
 
   if (!recommended) {
     recommended = result.find(i => i.type === 'hotspot' && !i.address.startsWith('169.254.'));
@@ -101,8 +116,12 @@ function formatInterfaceDisplayName(name: string, type: string, address: string)
   return `${label} - ${address}`;
 }
 
-export function getFullNetworkStatus(preferredInterfaceName?: string): NetworkStatus {
-  const interfaces = getNetworkInterfacesList(preferredInterfaceName);
+export function getFullNetworkStatus(
+  preferredInterfaceName?: string,
+  publicHost?: string,
+  protocol: string = 'http'
+): NetworkStatus {
+  const interfaces = getNetworkInterfacesList(preferredInterfaceName, publicHost, protocol);
   const selected = interfaces.find(i => i.isRecommended) || interfaces[0] || null;
 
   const hostname = os.hostname();
